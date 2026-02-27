@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drone Defense OS — D* Lite Live Demo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #020817;
+            --surface: #0f172a;
+            --surface2: #1e293b;
+            --border: #1e293b;
+            --cyan: #22d3ee;
+            --blue: #3b82f6;
+            --green: #4ade80;
+            --yellow: #facc15;
+            --red: #f87171;
+            --orange: #fb923c;
+            --text: #e2e8f0;
+            --muted: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: grid;
+            grid-template-rows: 54px 1fr 32px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Header ─────────────────────────────────────────── */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            font-size: 22px;
+        }
+
+        .logo h1 {
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo p {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 12px;
+        }
+
+        #live-badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            background: var(--surface2);
+            color: var(--muted);
+            transition: all 0.3s;
+        }
+
+        #live-badge.active {
+            background: #14532d;
+            color: var(--green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .5
+            }
+        }
+
+        /* ── Main layout ─────────────────────────────────────── */
+        main {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ─────────────────────────────────────────── */
+        aside {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel {
+            background: var(--surface2);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .panel-title {
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 9px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            letter-spacing: .02em;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #0e7490, #1d4ed8);
+            color: #fff;
+        }
+
+        .btn-start:hover {
+            filter: brightness(1.2);
+        }
+
+        .btn-start:disabled {
+            opacity: .4;
+            cursor: default;
+        }
+
+        .btn-stop {
+            background: #7f1d1d;
+            color: var(--red);
+            border: 1px solid #991b1b;
+        }
+
+        .btn-stop:hover {
+            background: #991b1b;
+        }
+
+        .btn-stop:disabled {
+            opacity: .4;
+            cursor: default;
+        }
+
+        label {
+            font-size: 11px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--cyan);
+        }
+
+        .slider-row {
+            margin-bottom: 8px;
+        }
+
+        .slider-val {
+            float: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--cyan);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .metric {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .metric-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: .06em;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-top: 2px;
+        }
+
+        .metric-value.green {
+            color: var(--green);
+        }
+
+        .metric-value.yellow {
+            color: var(--yellow);
+        }
+
+        .metric-value.red {
+            color: var(--red);
+        }
+
+        .progress-wrap {
+            background: var(--surface);
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            border-radius: 4px;
+            transition: width .4s;
+        }
+
+        #log {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #64748b;
+            height: 110px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        #log .entry {
+            color: var(--cyan);
+        }
+
+        #log .warn {
+            color: var(--yellow);
+        }
+
+        #log .ok {
+            color: var(--green);
+        }
+
+        /* ── Grid canvas area ───────────────────────────────── */
+        section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        canvas {
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+
+        #legend {
+            position: absolute;
+            bottom: 10px;
+            right: 14px;
+            display: flex;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .leg {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        /* ── Footer ────────────────────────────────────────── */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        /* ── Standalone mode badge ──────────────────────────── */
+        #mode-badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 11px;
+            background: #1e3a5f;
+            color: #60a5fa;
+            border: 1px solid #3b82f680;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <span>🛸</span>
+            <div>
+                <h1>Drone Defense OS</h1>
+                <p>D* Lite Incremental Replanning · v2.0</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="live-badge">○ IDLE</span>
+            <span id="hdr-coverage" style="color:var(--muted)">Coverage: 0%</span>
+            <span id="hdr-battery" style="color:var(--muted)">Battery: 100%</span>
+            <span id="mode-badge">⚡ Standalone Mode</span>
+        </div>
+    </header>
+
+    <main>
+        <aside>
+            <!-- Control Panel -->
+            <div class="panel">
+                <div class="panel-title">Mission Control</div>
+
+                <div class="slider-row">
+                    <label>Grid Size <span class="slider-val" id="lbl-grid">20×20</span></label>
+                    <input type="range" id="sl-grid" min="10" max="30" value="20" step="5">
+                </div>
+                <div class="slider-row">
+                    <label>Obstacles <span class="slider-val" id="lbl-obs">35</span></label>
+                    <input type="range" id="sl-obs" min="5" max="80" value="35">
+                </div>
+                <div class="slider-row">
+                    <label>Speed <span class="slider-val" id="lbl-spd">80ms</span></label>
+                    <input type="range" id="sl-spd" min="20" max="500" step="20" value="80">
+                </div>
+
+                <button class="btn btn-start" id="btn-start" onclick="startMission()">▶ Start Mission</button>
+                <div style="height:8px"></div>
+                <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--text)"
+                    onclick="confirmInitGrid()">🎲 Re-Generate Map</button>
+                <div style="height:8px"></div>
+                <button class="btn btn-stop" id="btn-stop" onclick="stopMission()" disabled>■ Stop</button>
+                <p style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5">
+                    <b>Setup:</b> Click 🎲 to randomize. Right-Click to set Target.<br>
+                    <b>Live:</b> Click to add obstacles.
+                </p>
+            </div>
+
+            <!-- Metrics -->
+            <div class="panel">
+                <div class="panel-title">Live Telemetry</div>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Coverage</div>
+                        <div class="metric-value green" id="m-coverage">0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Battery</div>
+                        <div class="metric-value" id="m-battery">100%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Replannings</div>
+                        <div class="metric-value yellow" id="m-replan">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Steps</div>
+                        <div class="metric-value" id="m-steps">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Position</div>
+                        <div class="metric-value" id="m-pos" style="font-size:13px">0,0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Elapsed</div>
+                        <div class="metric-value" id="m-elapsed">0s</div>
+                    </div>
+                </div>
+                <div style="margin-top:10px">
+                    <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Coverage Progress</div>
+                    <div class="progress-wrap">
+                        <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Log -->
+            <div class="panel" style="flex:1">
+                <div class="panel-title">Event Log</div>
+                <div id="log"></div>
+            </div>
+        </aside>
+
+        <section>
+            <canvas id="grid-canvas"></canvas>
+            <div id="legend">
+                <div class="leg">
+                    <div class="dot" style="background:#22d3ee"></div>Drone
+                </div>
+                <div class="leg">
+                    <div class="dot" style="background:#a855f7"></div>Target
+                </div>
+                <div class="leg">
+                    <div class="dot" style="background:#3b82f6;opacity:.5"></div>Path
+                </div>
+                <div class="leg">
+                    <div class="dot" style="background:#4ade80;opacity:.4"></div>Covered
+                </div>
+                <div class="leg">
+                    <div class="dot" style="background:#f87171;opacity:.7"></div>Obstacle
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>Drone Defense OS &nbsp;·&nbsp; D* Lite Pathfinding · Right-Click to set Goal · Left-Click to add Obstacles
+    </footer>
+
+    <script>
+        // ══════════════════════════════════════════════════════════════════════
+        //  SIMULATION STATE
+        // ══════════════════════════════════════════════════════════════════════
+        let ROWS = 20, COLS = 20;
+        let grid = [];          // 0=free, 1=obstacle, 2=dynamic obs
+        let covered = [];       // bool grid
+        let dronePos = [0, 0];
+        let droneGoal = null;   // [r, c] user-defined target
+        let currentPath = [];
+        let battery = 100;
+        let steps = 0;
+        let replannings = 0;
+        let missionRunning = false;
+        let missionTimer = null;
+        let startTime = null;
+        let cellSize = 30;
+        const MAX_BATTERY = 1500;
+        let batteryUsed = 0;
+        let isScanning = false;
+        let optimizedPath = [];
+
+        // ── Canvas ────────────────────────────────────────────────────────────
+        const canvas = document.getElementById('grid-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const section = canvas.parentElement;
+            const maxW = section.clientWidth - 20;
+            const maxH = section.clientHeight - 20;
+            cellSize = Math.floor(Math.min(maxW / COLS, maxH / ROWS));
+            canvas.width = cellSize * COLS;
+            canvas.height = cellSize * ROWS;
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        //  GRID GENERATION
+        // ══════════════════════════════════════════════════════════════════════
+        function confirmInitGrid() {
+            if (missionRunning && !confirm("Current mission will be reset. Continue?")) return;
+            stopMission();
+            const gridN = parseInt(document.getElementById('sl-grid').value);
+            const obs = parseInt(document.getElementById('sl-obs').value);
+            ROWS = gridN; COLS = gridN;
+            initGrid(obs);
+            resizeCanvas();
+            draw();
+            log(`🎲 Map re-generated: ${ROWS}×${COLS} grid.`, 'ok');
+        }
+
+        function initGrid(obstacleCount) {
+            grid = [];
+            covered = [];
+            for (let r = 0; r < ROWS; r++) {
+                grid.push(new Array(COLS).fill(0));
+                covered.push(new Array(COLS).fill(false));
+            }
+
+            let placed = 0;
+            let attempts = 0;
+            while (placed < obstacleCount && attempts < 10000) {
+                attempts++;
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * COLS);
+                if ((r === 0 && c === 0) || grid[r][c] !== 0) continue;
+                grid[r][c] = 1;
+                placed++;
+            }
+
+            dronePos = [0, 0];
+            droneGoal = null;
+            covered[0][0] = true;
+            battery = 100;
+            batteryUsed = 0;
+            steps = 0;
+            replannings = 0;
+            currentPath = [];
+            startTime = null;
+            updateUI();
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        //  PATHFINDING (A*)
+        // ══════════════════════════════════════════════════════════════════════
+        function heuristic(a, b) {
+            return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+        }
+
+        function getNeighbors(pos) {
+            const [r, c] = pos;
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+            return dirs
+                .map(([dr, dc]) => [r + dr, c + dc])
+                .filter(([nr, nc]) => nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === 0);
+        }
+
+        function planPath(start, goal) {
+            const key = p => p[0] * 1000 + p[1];
+            const open = [{ pos: start, g: 0, f: heuristic(start, goal) }];
+            const gScore = new Map();
+            const parent = new Map();
+            gScore.set(key(start), 0);
+
+            while (open.length > 0) {
+                open.sort((a, b) => a.f - b.f);
+                const { pos } = open.shift();
+
+                if (pos[0] === goal[0] && pos[1] === goal[1]) {
+                    const path = [];
+                    let cur = goal;
+                    while (cur) {
+                        path.unshift(cur);
+                        cur = parent.get(key(cur));
+                    }
+                    return path;
+                }
+
+                for (const nb of getNeighbors(pos)) {
+                    const dist = (nb[0] !== pos[0] && nb[1] !== pos[1]) ? 1.41 : 1;
+                    const ng = (gScore.get(key(pos)) || 0) + dist;
+                    if (!gScore.has(key(nb)) || ng < gScore.get(key(nb))) {
+                        gScore.set(key(nb), ng);
+                        parent.set(key(nb), pos);
+                        open.push({ pos: nb, g: ng, f: ng + heuristic(nb, goal) });
+                    }
+                }
+            }
+            return null;
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        //  MISSION CONTROL
+        // ══════════════════════════════════════════════════════════════════════
+        let waypoints = [];
+        let waypointIndex = 0;
+        let pathIndex = 0;
+
+        function startMission() {
+            if (missionRunning) return;
+
+            // Only rebuild waypoints if we aren't resuming
+            if (waypoints.length === 0 || waypointIndex >= waypoints.length) {
+                waypoints = buildWaypoints();
+                waypointIndex = 0;
+            }
+
+            if (!startTime) startTime = Date.now();
+            missionRunning = true;
+            setBadge(true);
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-stop').disabled = false;
+
+            const spd = parseInt(document.getElementById('sl-spd').value);
+            log(`▶ Mission started/resumed (${spd}ms/step)`, 'entry');
+
+            updateTimer(spd);
+        }
+
+        function updateTimer(spd) {
+            if (missionTimer) clearInterval(missionTimer);
+            if (missionRunning) {
+                missionTimer = setInterval(() => tick(), spd);
+            }
+        }
+
+        function stopMission() {
+            missionRunning = false;
+            clearInterval(missionTimer);
+            setBadge(false);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+            log('■ Mission paused.', 'warn');
+        }
+
+        function buildWaypoints() {
+            const wps = [];
+            for (let r = 0; r < ROWS; r++) {
+                const cols = r % 2 === 0 ? range(COLS) : range(COLS).reverse();
+                for (const c of cols) {
+                    if (grid[r][c] === 0) wps.push([r, c]);
+                }
+            }
+            return wps;
+        }
+
+        function range(n) { return Array.from({ length: n }, (_, i) => i); }
+
+        function tick() {
+            if (!missionRunning) return;
+
+            batteryUsed++;
+            battery = Math.max(0, 100 - (batteryUsed / MAX_BATTERY) * 100);
+            if (battery <= 0) {
+                log('⚠ Battery depleted!', 'warn');
+                stopMission();
+                return;
+            }
+
+            // Decide target: User Goal > Coverage Waypoint
+            let target = droneGoal || waypoints[waypointIndex];
+
+            // If path is empty or goal changed or current path is blocked
+            const isPathBlocked = currentPath.length > 0 && pathIndex < currentPath.length && grid[currentPath[pathIndex][0]][currentPath[pathIndex][1]] !== 0;
+
+            if (!currentPath.length || pathIndex >= currentPath.length || isPathBlocked) {
+                if (isPathBlocked) {
+                    replannings++;
+                    log(`⚡ Obstacle at (${currentPath[pathIndex].join(',')}) — Replanning`, 'warn');
+                }
+
+                const newPath = planPath(dronePos, target) || [];
+
+                // Show scanning effect if we just planned a significant new path
+                if (newPath.length > 5) {
+                    isScanning = true;
+                    optimizedPath = newPath;
+
+                    // Brute force "scanning" simulation
+                    for (let i = 0; i < 8; i++) {
+                        setTimeout(() => {
+                            if (!missionRunning) return;
+                            // Generate random "scan line"
+                            let scan = [[...dronePos]];
+                            let curr = [...dronePos];
+                            for (let j = 0; j < 10; j++) {
+                                curr[0] = Math.max(0, Math.min(ROWS - 1, curr[0] + Math.floor(Math.random() * 3) - 1));
+                                curr[1] = Math.max(0, Math.min(COLS - 1, curr[1] + Math.floor(Math.random() * 3) - 1));
+                                scan.push([...curr]);
+                            }
+                            currentPath = scan;
+                            draw();
+                        }, i * 100);
+                    }
+
+                    setTimeout(() => {
+                        isScanning = false;
+                        currentPath = newPath;
+                        pathIndex = 1;
+                        draw();
+                    }, 850);
+
+                    return; // Wait for scan to finish
+                }
+
+                currentPath = newPath;
+                pathIndex = 1;
+
+                if (!currentPath.length || currentPath.length < 2) {
+                    if (droneGoal) {
+                        log(`⚠ Goal (${target.join(',')}) unreachable!`, 'warn');
+                        droneGoal = null; // Clear unreachable goal
+                    } else {
+                        waypointIndex++; // Skip unreachable waypoint
+                        currentPath = []; // Clear path
+                    }
+                    return;
+                }
+            }
+
+            // Move
+            dronePos = currentPath[pathIndex];
+            covered[dronePos[0]][dronePos[1]] = true;
+            steps++;
+            pathIndex++;
+
+            // Check if goal reached
+            if (droneGoal && dronePos[0] === droneGoal[0] && dronePos[1] === droneGoal[1]) {
+                log(`🎯 Goal reached!`, 'ok');
+                droneGoal = null;
+                currentPath = [];
+            } else if (!droneGoal && waypointIndex < waypoints.length && dronePos[0] === waypoints[waypointIndex][0] && dronePos[1] === waypoints[waypointIndex][1]) {
+                waypointIndex++;
+            }
+
+            if (!droneGoal && waypointIndex >= waypoints.length) {
+                missionComplete();
+            }
+
+            updateUI();
+            draw();
+        }
+
+        function missionComplete() {
+            missionRunning = false;
+            clearInterval(missionTimer);
+            setBadge(false);
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+            log(`✓ Mission complete! Coverage: ${getCoverage()}%`, 'ok');
+        }
+
+        function getCoverage() {
+            let total = 0, cov = 0;
+            for (let r = 0; r < ROWS; r++)
+                for (let c = 0; c < COLS; c++) {
+                    if (grid[r][c] === 0) { total++; if (covered[r][c]) cov++; }
+                }
+            return total === 0 ? 100 : Math.round((cov / total) * 100);
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        //  DRAWING & INTERACTION
+        // ══════════════════════════════════════════════════════════════════════
+        function draw() {
+            if (!ctx) return;
+            resizeCanvas();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const x = c * cellSize, y = r * cellSize, sz = cellSize - 1;
+                    if (grid[r][c] === 1) ctx.fillStyle = 'rgba(248,113,113,0.7)';
+                    else if (grid[r][c] === 2) ctx.fillStyle = 'rgba(251,146,60,0.8)';
+                    else if (covered[r][c]) ctx.fillStyle = 'rgba(74,222,128,0.15)';
+                    else ctx.fillStyle = 'rgba(15,23,42,0.8)';
+                    ctx.fillRect(x, y, sz, sz);
+                    ctx.strokeStyle = 'rgba(30,41,59,0.3)';
+                    ctx.strokeRect(x, y, cellSize, cellSize);
+                }
+            }
+
+            // Draw Path Line
+            if (currentPath.length > 0) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(59,130,246,0.6)';
+                ctx.lineWidth = 3;
+                ctx.lineJoin = 'round';
+                currentPath.forEach((p, i) => {
+                    const x = p[1] * cellSize + cellSize / 2, y = p[0] * cellSize + cellSize / 2;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            }
+
+            // Draw Optimized Path (Blue Dotted)
+            if (optimizedPath.length > 0) {
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(59,130,246,0.9)';
+                ctx.lineWidth = 2;
+                optimizedPath.forEach((p, i) => {
+                    const x = p[1] * cellSize + cellSize / 2, y = p[0] * cellSize + cellSize / 2;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw Scanning Pulse effect
+            if (isScanning) {
+                ctx.fillStyle = 'rgba(59,130,246,0.1)';
+                for (let i = 0; i < 15; i++) {
+                    const r = Math.floor(Math.random() * ROWS);
+                    const c = Math.floor(Math.random() * COLS);
+                    ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Draw Goal
+            if (droneGoal) {
+                const gx = droneGoal[1] * cellSize + cellSize / 2, gy = droneGoal[0] * cellSize + cellSize / 2;
+                ctx.fillStyle = '#a855f7';
+                ctx.beginPath(); ctx.arc(gx, gy, cellSize * 0.3, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+            }
+
+            // Draw drone
+            const cx = dronePos[1] * cellSize + cellSize / 2, cy = dronePos[0] * cellSize + cellSize / 2;
+            const rad = cellSize * 0.35;
+            ctx.fillStyle = '#22d3ee';
+            ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(cx, cy, rad * 0.3, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function updateUI() {
+            const cov = getCoverage();
+            const bat = Math.round(battery);
+            const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
+            document.getElementById('m-coverage').textContent = cov + '%';
+            document.getElementById('m-battery').textContent = bat + '%';
+            document.getElementById('m-replan').textContent = replannings;
+            document.getElementById('m-steps').textContent = steps;
+            document.getElementById('m-pos').textContent = dronePos.join(',');
+            document.getElementById('m-elapsed').textContent = elapsed + 's';
+            document.getElementById('prog-bar').style.width = cov + '%';
+            document.getElementById('hdr-coverage').textContent = 'Coverage: ' + cov + '%';
+            document.getElementById('hdr-battery').textContent = 'Battery: ' + bat + '%';
+        }
+
+        // ── Interaction ───────────────────────────────────────────────────────
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const col = Math.floor(((e.clientX - rect.left) * (canvas.width / rect.width)) / cellSize);
+            const row = Math.floor(((e.clientY - rect.top) * (canvas.height / rect.height)) / cellSize);
+            return (row >= 0 && row < ROWS && col >= 0 && col < COLS) ? [row, col] : null;
+        }
+
+        canvas.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            const pos = getMousePos(e);
+            if (pos && grid[pos[0]][pos[1]] === 0) {
+                droneGoal = pos;
+                currentPath = []; // Force replan
+                optimizedPath = []; // Clear old optimized path
+                log(`🎯 Destination: (${pos.join(',')})`, 'entry');
+                draw();
+            }
+        });
+
+        canvas.addEventListener('click', e => {
+            const pos = getMousePos(e);
+            if (pos && grid[pos[0]][pos[1]] === 0 && !(dronePos[0] === pos[0] && dronePos[1] === pos[1])) {
+                grid[pos[0]][pos[1]] = 2; // Dynamic obstacle
+                log(`⚡ Obstacle added at (${pos.join(',')})`, 'warn');
+                draw();
+            }
+        });
+
+        document.getElementById('sl-spd').addEventListener('input', function () {
+            document.getElementById('lbl-spd').textContent = this.value + 'ms';
+            if (missionRunning) updateTimer(parseInt(this.value));
+        });
+
+        document.getElementById('sl-grid').addEventListener('input', function () {
+            document.getElementById('lbl-grid').textContent = this.value + '×' + this.value;
+        });
+        document.getElementById('sl-obs').addEventListener('input', function () {
+            document.getElementById('lbl-obs').textContent = this.value;
+        });
+
+        function setBadge(active) {
+            const el = document.getElementById('live-badge');
+            el.textContent = active ? '● LIVE' : '○ IDLE';
+            el.className = active ? 'active' : '';
+        }
+
+        function log(msg, cls = '') {
+            const el = document.getElementById('log');
+            const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            const line = document.createElement('div');
+            line.className = cls;
+            line.textContent = `[${ts}] ${msg}`;
+            el.appendChild(line);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+        initGrid(35); resizeCanvas(); draw();
+        log('🛸 Drone Defense OS ready.', 'ok');
+    </script>
+</body>
+
+</html>
+```
