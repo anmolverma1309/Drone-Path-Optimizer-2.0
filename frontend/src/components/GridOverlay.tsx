@@ -149,12 +149,12 @@ const GridOverlay: React.FC<GridOverlayProps> = ({ state, onCellClick }) => {
     }
 
     return (
-        <div className="w-full h-full flex items-center justify-center bg-slate-900 p-4">
+        <div className="w-full h-full flex items-center justify-center bg-slate-900 p-4 overflow-hidden">
             <canvas
                 ref={canvasRef}
                 onClick={handleClick}
                 className="rounded-lg cursor-crosshair shadow-2xl shadow-cyan-900/20"
-                style={{ maxWidth: "100%", maxHeight: "70vh", imageRendering: "pixelated" }}
+                style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", imageRendering: "pixelated" }}
             />
         </div>
     );

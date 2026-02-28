@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TelemetryState } from './types';
+import { TelemetryState } from '../types';
 
 /**
  * Custom hook to handle real-time WebSocket connection to the drone backend.
@@ -16,8 +16,14 @@ export const useDroneSocket = (url: string) => {
         };
 
         ws.onmessage = (event) => {
-            const data: TelemetryState = JSON.parse(event.data);
-            setDroneState(data);
+            const data = JSON.parse(event.data);
+            // Only update telemetry state if this is actually a telemetry packet
+            if (data.grid) {
+                setDroneState(data as TelemetryState);
+            } else if (data.event) {
+                // It's a non-telemetry event (like DEMO_SCENARIO). Ignore or handle separately.
+                console.log("WebSocket event received:", data.event);
+            }
         };
 
         ws.onclose = () => {

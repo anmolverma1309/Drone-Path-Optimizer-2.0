@@ -10,6 +10,8 @@ from typing import List, Optional, Tuple
 import uvicorn
 
 from core.engine import SimulationEngine
+from api.test_endpoints import router as stress_router, set_engine as stress_set_engine
+from auto_demo import run_demo_loop
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -28,11 +30,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(stress_router)
+
 # ---------------------------------------------------------------------------
 # Global simulation state (single drone for demo)
 # ---------------------------------------------------------------------------
 engine = SimulationEngine(rows=20, cols=20, obstacle_count=35, seed=7)
 _mission_task: Optional[asyncio.Task] = None
+_demo_task: Optional[asyncio.Task] = None
+
+# Inject engine into stress router
+stress_set_engine(engine)
 
 # ---------------------------------------------------------------------------
 # WebSocket connection manager
@@ -125,6 +133,24 @@ async def add_obstacle(req: ObstacleRequest):
     """Dynamically add an obstacle mid-flight (simulates discovered threat)."""
     engine.add_obstacle_live(req.row, req.col)
     return {"status": "obstacle_added", "position": [req.row, req.col]}
+
+@app.post("/demo/start")
+async def start_demo():
+    """Trigger the 3-minute auto-demo judging loop."""
+    global _demo_task
+    if _demo_task and not _demo_task.done():
+        _demo_task.cancel()
+    _demo_task = asyncio.create_task(
+        run_demo_loop(engine, manager.broadcast)
+    )
+    return {"status": "demo_started"}
+
+@app.post("/demo/stop")
+async def stop_demo():
+    global _demo_task
+    if _demo_task and not _demo_task.done():
+        _demo_task.cancel()
+    return {"status": "demo_stopped"}
 
 @app.get("/grid/config")
 async def grid_config():
