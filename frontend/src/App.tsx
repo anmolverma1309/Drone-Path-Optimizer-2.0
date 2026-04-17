@@ -12,12 +12,18 @@ import demoData from "./demo_mode.json";
 // Lazy-load heavy Three.js component
 const ThreeDroneArena = lazy(() => import("./components/ThreeDroneArena"));
 
-const API = "http://localhost:8000";
+const API = "/api";
+
+// Construct WebSocket URL dynamically for local dev and production
+const getWebSocketUrl = () => {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/api/ws/telemetry`;
+};
 
 type ViewMode = "2d" | "3d";
 
 const App: React.FC = () => {
-  const { droneState } = useDroneSocket("ws://localhost:8000/ws/telemetry");
+  const { droneState } = useDroneSocket(getWebSocketUrl());
   const [isMissionActive, setIsMissionActive] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("2d");
   const [isDemoActive, setIsDemoActive] = useState(false);

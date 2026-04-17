@@ -134,7 +134,7 @@ const GridOverlay: React.FC<GridOverlayProps> = ({ state, onCellClick }) => {
                 <div className="text-4xl mb-4 animate-bounce">📡</div>
                 <h3 className="text-lg font-semibold text-slate-300">Waiting for Backend</h3>
                 <p className="text-sm text-slate-500 mt-2 text-center max-w-xs">
-                    Please ensure the FastAPI server is running at <code className="text-cyan-400">localhost:8000</code> to view the live dashboard.
+                    Please ensure the backend API is accessible at <code className="text-cyan-400">/api</code> to view the live dashboard.
                 </p>
                 <div className="mt-6 flex flex-col gap-2 w-full max-w-xs">
                     <div className="h-2 bg-slate-800 rounded-full overflow-hidden">

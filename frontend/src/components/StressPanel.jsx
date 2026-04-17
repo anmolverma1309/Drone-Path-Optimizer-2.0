@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import html2canvas from "html2canvas";
 
-const API = "http://localhost:8000";
+const API = "/api";
 
 const METRICS_INIT = {
     avg_replan_ms: null,
