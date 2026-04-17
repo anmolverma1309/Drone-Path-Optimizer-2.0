@@ -18,7 +18,48 @@ Unlike A*, which requires full recalculation whenever an obstacle is found, **D*
 - `backend/api/`: FastAPI routes and WebSocket handlers.
 - `frontend/src/`: React source code with custom hooks for telemetry.
 
-## 🛠️ Setup
-1. **Backend**: `pip install -r requirements.txt` then `python backend/main.py`
-2. **Frontend**: `npm install` then `npm run dev`
-completing this here
+## 🛠️ Quick Start
+
+### One-Command Launch (Recommended)
+Choose one of the following to launch **both** frontend and backend:
+
+#### Option 1: npm (Linux/Mac/Windows PowerShell)
+```bash
+npm run dev
+```
+
+#### Option 2: Batch Script (Windows)
+```bash
+launch.bat
+```
+
+#### Option 3: PowerShell Script (Windows)
+```powershell
+.\launch.ps1
+```
+
+Then open http://localhost:3000 in your browser to see the frontend dashboard.
+
+### Manual Setup
+If you prefer to run services separately:
+
+1. **Backend Setup** (Terminal 1):
+   ```bash
+   cd backend
+   ..\venv\Scripts\python main.py
+   # or: python -m uvicorn main:app --reload
+   # Backend runs at http://localhost:8000
+   ```
+
+2. **Frontend Setup** (Terminal 2):
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   # Frontend runs at http://localhost:3000
+   ```
+
+## 📋 Requirements
+- Python 3.12+
+- Node.js 18+
+- npm or yarn
