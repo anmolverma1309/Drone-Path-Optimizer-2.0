@@ -1,0 +1,13 @@
+{
+  "name": "drone-path-optimizer",
+  "version": "2.0.0",
+  "description": "Advanced Drone Path Optimizer with D* Lite Algorithm",
+  "scripts": {
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && ..\\.venv\\Scripts\\python main.py\"",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && ..\\.venv\\Scripts\\python main.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
