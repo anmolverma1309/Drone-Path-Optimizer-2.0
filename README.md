@@ -21,3 +21,4 @@ Unlike A*, which requires full recalculation whenever an obstacle is found, **D*
 ## 🛠️ Setup
 1. **Backend**: `pip install -r requirements.txt` then `python backend/main.py`
 2. **Frontend**: `npm install` then `npm run dev`
+completing this here
