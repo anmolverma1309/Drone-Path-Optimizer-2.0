@@ -12,7 +12,11 @@ export const useDroneSocket = (url: string) => {
         const ws = new WebSocket(url);
 
         ws.onopen = () => {
-            console.log('Telemetry connection established');
+            console.log('✓ Telemetry connection established at', url);
+        };
+
+        ws.onerror = (error) => {
+            console.error('✗ WebSocket error:', error, 'URL:', url);
         };
 
         ws.onmessage = (event) => {
@@ -27,7 +31,7 @@ export const useDroneSocket = (url: string) => {
         };
 
         ws.onclose = () => {
-            console.log('Telemetry connection closed');
+            console.log('⚠ Telemetry connection closed');
         };
 
         setSocket(ws);
