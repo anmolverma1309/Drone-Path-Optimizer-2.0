@@ -16,6 +16,11 @@ const API = "/api";
 
 // Construct WebSocket URL dynamically for local dev and production
 const getWebSocketUrl = () => {
+  // In development, connect directly to backend to avoid proxy issues
+  if (import.meta.env.DEV) {
+    return 'ws://localhost:8000/ws/telemetry';
+  }
+  // In production, use /api prefix
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   return `${protocol}//${window.location.host}/api/ws/telemetry`;
 };
