@@ -14,7 +14,7 @@ Write-Host "Starting Frontend (React at http://localhost:3000)..." -ForegroundCo
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD\frontend'; npm run dev"
 
 Write-Host "`n========================================" -ForegroundColor Green
-Write-Host "Services starting..." -ForegroundColor Green
+Write-Host "Services starting..." -ForegroundColor Green 
 Write-Host "  Backend: http://localhost:8000" -ForegroundColor Cyan
 Write-Host "  Frontend: http://localhost:3000" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Green
