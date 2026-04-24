@@ -14,7 +14,7 @@ from fastapi import FastAPI
 ROOT = Path(__file__).resolve().parent
 BACKEND_DIR = ROOT / "backend"
 
-# Ensure backend modules like `core` and `api.test_endpoints` are importable.
+
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
