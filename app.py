@@ -18,7 +18,7 @@ BACKEND_DIR = ROOT / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from main import app as backend_app  # type: ignore  # noqa: E402,F401
+from main import app as backend_app  
 
 # Create new FastAPI app that mounts backend at /api prefix
 app = FastAPI(title="Drone Path Optimizer")
