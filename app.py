@@ -23,5 +23,5 @@ from main import app as backend_app  # type: ignore  # noqa: E402,F401
 # Create new FastAPI app that mounts backend at /api prefix
 app = FastAPI(title="Drone Path Optimizer")
 
-
+ 
 app.mount("/api", backend_app)
